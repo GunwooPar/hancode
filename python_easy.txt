@@ -1,0 +1,10 @@
+#title: 덧셈 함수
+#desc: 두 수를 더하는 함수 작성
+def add(a, b):
+    return a + b
+---
+#title: 최대값 찾기
+#desc: 리스트에서 최댓값을 반환
+def find_max(nums):
+    return max(nums)
+---
