@@ -38,3 +38,31 @@ jugment(0)
 
                                                       #여기까지 기본적인 틀
                            
+
+
+
+
+def typo(enter,i):
+ for j in range(len(problems[i])):
+    if j < len(enter):
+        # 정상 비교
+        if problems[i][j] == enter[j]:
+            print("\033[32m"+enter[j]+"\33[0m",end="")
+            
+        else:
+            print("\033[41m"+problems[i][j]+"\033[0m", end="")
+            
+    else:
+        # 입력이 부족한 부분은 오타로 처리
+        print("\033[41m"+problems[i][j]+"\033[0m",end="")
+print()
+
+
+def jugment():
+  for i in range(len(problems)):      #행 수만큼 반복
+    print()
+    enter=input(problems[i]+"\n")              # 한줄씩 입력받음 
+    typo(enter,i)
+    if i+1< len(problems):     
+      pass                  
+    else:

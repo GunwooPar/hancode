@@ -19,7 +19,7 @@ def cpm_updater():
         else:
             cpm = 0
        
-        print(f"\r현재 입력: {input_text} | CPM: {cpm:.0f}        ", end="")
+        print(f"\r현재 입력 : {input_text} | CPM: {cpm:.0f}        ", end="")
         sys.stdout.flush()
         time.sleep(0.01)
 
@@ -38,19 +38,13 @@ def typo(input_text, problem):
     return result
 
 #메인함수 
-
-problems = [
-    "#include <stdio.h>",
-    "int main() {",
-    "    printf(\"Hello, world!\\n\");",
-    "    return 0;",
-    "}"
-]
+import file
+file.get_file()
 
 print("타자연습을 시작합니다. (엔터로 각 문제 종료)")
 input("엔터를 누르면 타자 시작!")
-for i, problem in enumerate(problems):
-    print(f"\n문제 {i+1}   : {problem}")
+for i, problem in enumerate(file.global_problems):
+    print(f"\n문제 {i+1}  : {problem}")
     
     input_text = ""
     start_time = time.time()
@@ -73,15 +67,15 @@ for i, problem in enumerate(problems):
                 input_text += ch
             
             os.system('cls')
-            print(f"문제 {i+1}   : {problem}")
-            print("현재 입력: " + input_text)
-            print("오타 표시 : " + typo(input_text, problem))
+            print(f"문제 {i+1}    : {problem}")
+            print(f"현재 입력 : {input_text}")
+            print(f"오타 표시 : {typo(input_text, problem)}")
 
 
     # 마지막 결과 한 번 더 출력
-    print("최종 입력: ", input_text)
-    print("오타 표시 : " + typo(input_text, problem))
-    print(f"정답과 일치: {input_text == problem}")
+    print(f"최종 입력 : {input_text}")
+    print(f"오타 표시 : {typo(input_text, problem)}")
+    print(f"정답 일치 : {input_text == problem}")
     print(f"최종 타/분: {count_character(input_text) / (time.time()-start_time) * 60:.0f}")
 
 time.sleep(0.3)
