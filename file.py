@@ -1,8 +1,8 @@
-def parse_problems_from_file():
+def parse_problems_from_file(file_name:str)->list:  # 반환값은 리스트긴한데 리스트 안에 딕셔너리 들어있음 
     
     all_problems = []
     current_problem = {}
-    with open('python_easy.txt', 'r', encoding='utf-8') as f:
+    with open(file_name, 'r', encoding='utf-8') as f:
         for line in f:
             if '---' in line:
                 
@@ -31,8 +31,9 @@ def parse_problems_from_file():
     
     return all_problems 
 
+if __name__ == "__main__":
 
+    
+    test= parse_problems_from_file("python_easy.txt")
 
-test= parse_problems_from_file()
-
-print(test)
+    print(test)

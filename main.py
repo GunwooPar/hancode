@@ -10,44 +10,53 @@ def count_character(input_text):        #글자수 세는거
     return len(input_text.replace(" ", ""))
 
 def cpm_updater():                  # 실시간 속도 출력
-    global running, input_text, start_time
+    global running, input_text, start_time, current_cpm
     while running:
         now = time.time()
         elapsed = now - start_time
         if elapsed > 0:
-            cpm = count_character(input_text) / elapsed * 60
+            current_cpm = count_character(input_text) / elapsed * 60
         else:
-            cpm = 0
+            current_cpm = 0
        
-        print(f"\r현재 입력 : {input_text}                 | CPM: {cpm:.0f}        ", end="")
-        sys.stdout.flush()          # 버퍼 비우기
+       
+    
         time.sleep(0.01)
 
 
 
-def typo(input_text, problem):
+def typo(input_text, problem_text):
     result = ""
-    for j in range(len(problem)):
-        if j < len(input_text):
-            if problem[j] == input_text[j]:
-                result += "\033[32m" + input_text[j] + "\033[0m"
+    for j in range(len(problem_text)):
+        if j < len(input_text):     # 현재확인 중인 글자위치번호가 사용자가 입력중인 위치보다 작은가 
+            if problem_text[j] == input_text[j]:
+                result += "\033[32m" + input_text[j] + "\033[0m"        # 맞으면 녹색
             else:
-                result += "\033[41m" + problem[j] + "\033[0m"
+                result += "\033[41m" + problem_text[j] + "\033[0m"           # 틀리면 빨간색
         else:
-            result += "\033[41m" + problem[j] + "\033[0m"
+            result += "\033[41m" + problem_text[j] + "\033[0m"               # 틀리면 빨간색
     return result
 
-#메인함수 
+# 메인함수 
 import file
 
-
+file_name=input("연습하실 파일명을 입력하시오: ")
 print("타자연습을 시작합니다. (엔터로 각 문제 종료)")
 input("엔터를 누르면 타자 시작!")
 
-file.get_file()
-for i, problem in enumerate(file.problems):
-    # print(f"\n문제 {i+1}  : {problem}")
+all_problems=file.parse_problems_from_file(file_name)
+for i, problem in enumerate(all_problems):
+    problem_text = "\n".join(problem.get('content', []))
+
+    print(f"\n========== 문제 {i + 1} ==========")
     
+    title = problem.get('title', '제목없음')            # 딕셔너리에서 해당하는 키가 없으면 '제목없음' 반환 
+    desc = problem.get('desc','설명 없음')
+
+    print(f"제목: {title}")
+    print(f"설명: {desc}")
+    print("----------------------------")
+
     input_text = ""
     start_time = time.time()
     running = True
@@ -58,7 +67,7 @@ for i, problem in enumerate(file.problems):
     thread_1.start()
 
     while True:
-        if msvcrt.kbhit():        #입력받는거 
+        if msvcrt.kbhit():        # 입력받는거 
             ch = msvcrt.getwch()
             if ch == '\r':  # 엔터
                 running = False
@@ -66,12 +75,14 @@ for i, problem in enumerate(file.problems):
             elif ch == '\b':  # 백스페이스
                 input_text = input_text[:-1]
             else:
-                input_text += ch
+                input_text += ch        # 입력 받는거 바로바로 반영 
             
             os.system('cls')
-            print(f"문제 {i+1}    : {problem}")
+            print(f"문제 {i+1}    : {problem['content']}")
             
-            print(f"오타 표시 : {typo(input_text, problem)}")
+            print(f"오타 표시 : {typo(input_text, problem_text)}")
+
+            print(f"\r현재 입력 : {input_text}                 | CPM: {current_cpm:.0f}        ", end="")
 
 
     # 마지막 결과 한 번 더 출력
