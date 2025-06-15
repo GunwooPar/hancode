@@ -24,7 +24,7 @@ def parse_problems_from_file(file_name:str)->list:  # 반환값은 리스트긴�
             if 'content' not in current_problem:
                 current_problem['content'] = []
             
-            current_problem['content'].append(line.strip())
+            current_problem['content'].append(line)
 
         if current_problem:
             all_problems.append(current_problem)
