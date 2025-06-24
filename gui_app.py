@@ -7,6 +7,7 @@ from PyQt6.QtGui import QFont, QKeyEvent
 
 import file
 from main import TypingTest
+import graph_plotter # 그래프 플로터 임포트
 
 class TypingApp(QWidget):
     def __init__(self):
@@ -18,12 +19,33 @@ class TypingApp(QWidget):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.on_text_changed)
         self.current_item = None # 현재 처리 중인 아이템 추적
+        self.time_history = []  # 시간 기록
+        self.cpm_history = []   # CPM 기록
         self.init_ui()
         self._apply_styles() # UI 설정 후 스타일 적용
 
     def init_ui(self):
         self.setWindowTitle('타자 연습')
-        self.setGeometry(200, 200, 800, 600)
+
+        # [수정] 화면에 잘리지 않도록 창 크기와 위치 계산 로직을 변경합니다.
+        main_width, main_height = 650, 750
+        graph_width = 700  # graph_plotter.py와 맞출 그래프 너비
+        MARGIN = 20
+
+        # 두 창과 여백을 합친 전체 너비
+        total_width = main_width + MARGIN + graph_width
+
+        screen_geometry = QApplication.primaryScreen().geometry()
+
+        # 전체 블록을 화면 중앙에 위치시키기 위한 시작 x좌표 계산
+        start_x = (screen_geometry.width() - total_width) // 2
+        
+        # 메인 창 위치 설정 (화면 밖으로 나가지 않도록 보정)
+        main_x = max(20, start_x)
+        main_y = (screen_geometry.height() - main_height) // 2
+
+        self.setGeometry(main_x, main_y, main_width, main_height)
+
         main_layout = QVBoxLayout()
         self.stacked_widget = QStackedWidget()
         self.setup_start_screen()
@@ -125,6 +147,8 @@ class TypingApp(QWidget):
         self.input_line.returnPressed.connect(self.advance_to_next_item)
         self.stacked_widget.setCurrentIndex(1)
         self.timer.start(100)
+        self.time_history.clear()
+        self.cpm_history.clear()
         self.advance_to_next_item()
 
     def advance_to_next_item(self):
@@ -188,6 +212,11 @@ class TypingApp(QWidget):
         if elapsed > 0:
             current_cpm = (self.typing_test.count_character(self.typing_test.input_text) / elapsed) * 60
         
+        # [수정] 0.1초 간격의 시간과 CPM을 함께 기록
+        current_time_point = len(self.time_history) * 0.1
+        self.time_history.append(current_time_point)
+        self.cpm_history.append(current_cpm)
+        
         progress_text = f"진행도: {self.typing_test.total_correct_chars} / {self.grand_total_chars}"
         cpm_text = f"CPM: {current_cpm:.0f}"
         self.info_label.setText(f"{cpm_text} | {progress_text}")
@@ -203,6 +232,13 @@ class TypingApp(QWidget):
         
         self.history_view.append(f"<hr><h3>최종 평균 타수: {final_cpm:.0f}</h3>")
         self.info_label.setText("")
+
+        if self.time_history and self.cpm_history:
+            # getRect()로 현재 창의 최종 위치/크기 정보를 가져옵니다.
+            main_window_geometry = self.geometry().getRect()
+            graph_plotter.plot_cpm_history(
+                self.time_history, self.cpm_history, main_window_geometry
+            )
 
     def eventFilter(self, obj, event):
         """이벤트 필터: input_line에서 발생하는 이벤트를 가로챕니다."""
