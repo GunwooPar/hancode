@@ -1,20 +1,23 @@
-# 학생 정보를 담은 딕셔너리
-student = {
-    'name': '홍길동',
-    'grade': 2,
-    'subjects': ['수학', '영어',] 
-}
+from rich.live import Live
+from rich.table import Table
+import time
 
-# 'grade'라는 '키'가 있는지 확인 -> True
-if 'grade' in student:
-    print("student 딕셔너리에는 'grade'라는 키가 있습니다.")
+# 표시할 테이블 객체 생성
+table = Table()
+table.add_column("항목")
+table.add_column("값")
 
-# '홍길동'이라는 '값'이 있는지 확인 -> False
-# in 연산자는 기본적으로 값(value)을 검색하지 않습니다.
-if '홍길동' in student:
-    print("student 딕셔너리에는 '홍길동'이라는 키가 있습니다.") # 이 코드는 실행되지 않음
-
-# '영어'라는 문자열이 있는지 확인 -> False
-# 'subjects'라는 키의 값(리스트) 안에 있지만, 딕셔너리 자체를 검색하지는 않습니다.
-if '영어' in student:
-    print("student 딕셔너리에는 '영어'라는 키가 있습니다.") # 이 코드는 실행되지 않음
+# Live 객체로 테이블을 감싸줍니다.
+with Live(table, screen=True, refresh_per_second=10) as live:
+    # 루프 안에서 테이블의 내용만 계속 바꿔주면...
+    for i in range(1, 101):
+        # 기존 행을 지우고
+        table.rows.clear()
+        
+        # 새로운 행을 추가
+        table.add_row("값 1", str(i * 10))
+        table.add_row("값 2", str(i * 20))
+        table.add_row("값 3", str(i * 30))
+        
+        # rich 라이브러리가 알아서 화면 깜빡임 없이 업데이트합니다.
+        time.sleep(0.05)
