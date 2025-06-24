@@ -17,6 +17,8 @@ class TypingTest:
         self.current_cpm = 0
         self.i = 0
         self.content_line = ""
+        self.total_correct_chars = 0
+        self.total_elapsed_time = 0.0
 
     @staticmethod
     def count_character(input_text):        #글자수 세는거 
@@ -36,16 +38,6 @@ class TypingTest:
                 result += problem_text[j]
         return result
 
-    def cpm_updater(self):                  # 실시간 속도 출력
-        while self.running:
-            now = time.time()
-            elapsed = now - self.start_time
-            if elapsed > 0:
-                self.current_cpm = self.count_character(self.input_text) / elapsed * 60
-            else:
-                self.current_cpm = 0
-            time.sleep(0.01)
-
     def get_live_input(self):
         while self.running:
             if msvcrt.kbhit():
@@ -59,6 +51,15 @@ class TypingTest:
                     self.input_text += '    '  # Tab을 공백 4칸으로 변환
                 else:
                     self.input_text += ch
+            
+            # cpm_updater 로직을 이곳으로 통합합니다.
+            now = time.time()
+            elapsed = now - self.start_time
+            if elapsed > 0:
+                self.current_cpm = self.count_character(self.input_text) / elapsed * 60
+            else:
+                self.current_cpm = 0
+
             os.system('cls')
             print(f"문제 {self.i+1}    : {self.content_line}")
             print(f"현재 입력 : {self.input_text}                 | CPM: {self.current_cpm:.0f}")
@@ -89,19 +90,26 @@ class TypingTest:
     def run(self):
         print("타자연습을 시작합니다. (엔터로 각 문제 종료)")
         input("엔터를 누르면 타자 시작!")
+
+        # [수정] 모든 문제의 전체 글자수를 미리 계산합니다.
+        grand_total_chars = 0
+        for p in self.problems:
+            grand_total_chars += sum(self.count_character(line) for line in p.get('content', []))
+
+        self.total_correct_chars = 0
+        self.total_elapsed_time = 0.0
+
         for i, problem in enumerate(self.problems):
             self.i = i
             content_lines = problem.get('content', [])
             print(f"\n========== 문제 {i + 1} ==========")
-            title = problem.get('title', '제목없음')            # 딕셔너리에서 해당하는 키가 없으면 '제목없음' 반환 
+            title = problem.get('title', '제목없음')
             desc = problem.get('desc','설명 없음')
 
             print(f"제목: {title}")
             print(f"설명: {desc}")
             print("----------------------------")
-            
-            
-            
+
             for content_line in content_lines:
                 if not content_line: # 내용이 없는 빈 줄은 건너뜁니다.
                     continue
@@ -110,30 +118,37 @@ class TypingTest:
                 self.start_time = time.time()
                 self.running = True
 
-                # CPM 쓰레드 시작
-                thread_1 = threading.Thread(target=self.cpm_updater)
-                thread_1.daemon = True
-                thread_1.start()
-
-               
                 self.get_live_input()
+
+                elapsed_this_line = time.time() - self.start_time
+                self.total_elapsed_time += elapsed_this_line
+
+                # [가독성 개선] 입력이 끝난 후, 맞춘 글자 수 계산
+                
+                # 공백 제외, 정확히 입력된 글자수 계산
+                correct_chars_this_line = 0
+                for i_char, char_in_problem in enumerate(self.content_line):
+                    # 공백은 계산에서 제외
+                    if char_in_problem == ' ':
+                        continue
+                    
+                    # 사용자가 입력한 길이 내에 있고, 글자가 일치하는 경우
+                    if i_char < len(self.input_text) and self.input_text[i_char] == char_in_problem:
+                        correct_chars_this_line += 1
+                
+                self.total_correct_chars += correct_chars_this_line
+
+                print(f"맞은 갯수: {self.total_correct_chars} / {grand_total_chars}")
 
                 
 
 
               
-            
-            
-
-
-
-
-   # 마지막 결과 한 번 더 출력
-    
-    # print(f"오타 표시 : {typo(input_text, problem)}")
-# print(f"정답 일치 : {input_text == problem}")
-# print(f"\r최종 입력 : {input_text}")
-        print(f"최종 타/분: {self.count_character(self.input_text) / (time.time()-self.start_time) * 60:.0f}")
+        final_cpm = 0
+        if self.total_elapsed_time > 0:
+            final_cpm = (self.total_correct_chars / self.total_elapsed_time) * 60
+        
+        print(f"최종 타/분: {final_cpm:.0f}")
 
         time.sleep(0.3)
 
@@ -141,21 +156,6 @@ class TypingTest:
 
 
 
-# def jugment():
-#   for i in range(len(problems)):      #행 수만큼 반복
-#     print()
-#     enter=input(problems[i]+"\n")              # 한줄씩 입력받음 
-#     typo(enter,i)
-#     if i+1< len(problems):     
-#       pass                  
-#     else:
-        
-
-
-
-
-
-        
 if __name__ == "__main__":
     file_name = TypingTest.file_list()
     all_problems = file.ProblemParser.parse_problems_from_file(file_name)
