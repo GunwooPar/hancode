@@ -87,14 +87,19 @@ class TypingTest:
                 print("상중하중에서만 입력해주세요")
                 continue
 
+    def _calculate_grand_total_chars(self):
+        """모든 문제의 공백 제외 전체 글자 수를 계산합니다."""
+        total_chars = 0
+        for p in self.problems:
+            total_chars += sum(self.count_character(line) for line in p.get('content', []))
+        return total_chars
+
     def run(self):
         print("타자연습을 시작합니다. (엔터로 각 문제 종료)")
         input("엔터를 누르면 타자 시작!")
 
-        # [수정] 모든 문제의 전체 글자수를 미리 계산합니다.
-        grand_total_chars = 0
-        for p in self.problems:
-            grand_total_chars += sum(self.count_character(line) for line in p.get('content', []))
+        # [가독성 개선] 함수를 호출하여 전체 글자수를 계산합니다.
+        grand_total_chars = self._calculate_grand_total_chars()
 
         self.total_correct_chars = 0
         self.total_elapsed_time = 0.0
