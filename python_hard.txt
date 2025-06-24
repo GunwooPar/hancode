@@ -1,0 +1,53 @@
+#title: 퀵 정렬 알고리즘
+#desc: 퀵 정렬을 사용하여 숫자 리스트를 정렬합니다.
+def quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quick_sort(left) + middle + quick_sort(right)
+---
+#title: 데코레이터로 함수 실행 시간 측정
+#desc: 함수의 실행 시간을 측정하는 데코레이터를 작성합니다.
+import time
+def timing_decorator(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"{func.__name__} 실행 시간: {end_time - start_time:.5f}초")
+        return result
+    return wrapper
+---
+#title: 클래스 상속
+#desc: Animal 클래스를 상속받는 Dog와 Cat 클래스를 만듭니다.
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        raise NotImplementedError("Subclass must implement abstract method")
+
+class Dog(Animal):
+    def speak(self):
+        return f"{self.name} says Woof!"
+
+class Cat(Animal):
+    def speak(self):
+        return f"{self.name} says Meow!"
+---
+#title: 이진 탐색
+#desc: 정렬된 리스트에서 이진 탐색으로 값을 찾습니다.
+def binary_search(arr, target):
+    low, high = 0, len(arr) - 1
+    while low <= high:
+        mid = (low + high) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return -1

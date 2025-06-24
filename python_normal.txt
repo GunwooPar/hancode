@@ -1,0 +1,37 @@
+#title: 피보나치 수열
+#desc: n번째 피보나치 수를 반환합니다.
+def fibonacci(n):
+    if n <= 1:
+        return n
+    a, b = 0, 1
+    for _ in range(n - 1):
+        a, b = b, a + b
+    return b
+---
+#title: 파일 읽고 쓰기
+#desc: 파일에 내용을 쓰고 다시 읽어옵니다.
+def write_and_read(filename, content):
+    with open(filename, 'w') as f:
+        f.write(content)
+    with open(filename, 'r') as f:
+        return f.read()
+---
+#title: 리스트 평탄화
+#desc: 중첩된 리스트를 단일 리스트로 만듭니다.
+def flatten_list(nested_list):
+    flat_list = []
+    for item in nested_list:
+        if isinstance(item, list):
+            flat_list.extend(flatten_list(item))
+        else:
+            flat_list.append(item)
+    return flat_list
+---
+#title: 단어 개수 세기
+#desc: 문자열에서 각 단어의 빈도를 계산합니다.
+def count_words(text):
+    words = text.split()
+    word_count = {}
+    for word in words:
+        word_count[word] = word_count.get(word, 0) + 1
+    return word_count
